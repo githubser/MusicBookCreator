@@ -9,10 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBookCreator.Tests", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBookCreator.IconGenerator", "MusicBookCreator.IconGenerator\MusicBookCreator.IconGenerator.csproj", "{A726A27D-1420-40CE-9322-6C12F3AE6007}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdnScanCrop", "PdnScanCrop\PdnScanCrop.csproj", "{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdnScanCrop.Ocr", "PdnScanCrop.Ocr\PdnScanCrop.Ocr.csproj", "{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,30 +55,6 @@ Global
 		{A726A27D-1420-40CE-9322-6C12F3AE6007}.Release|x64.Build.0 = Release|Any CPU
 		{A726A27D-1420-40CE-9322-6C12F3AE6007}.Release|x86.ActiveCfg = Release|Any CPU
 		{A726A27D-1420-40CE-9322-6C12F3AE6007}.Release|x86.Build.0 = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|x64.Build.0 = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Debug|x86.Build.0 = Debug|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|x64.ActiveCfg = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|x64.Build.0 = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|x86.ActiveCfg = Release|Any CPU
-		{AFD9162F-0119-4751-BB26-8C0FF10BC7A8}.Release|x86.Build.0 = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|x64.Build.0 = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Debug|x86.Build.0 = Debug|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|x64.ActiveCfg = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|x64.Build.0 = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|x86.ActiveCfg = Release|Any CPU
-		{B192EC6B-8AEC-4DB2-8A61-C5B1023BDA50}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

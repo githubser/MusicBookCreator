@@ -13,10 +13,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!-- The app's processing code, linked (not referenced) because the app is a WinExe. -->
   <ItemGroup>
-    <Compile Include="..\PdnScanCrop\ScanProcessor.cs" Link="Shared\ScanProcessor.cs" />
-    <Compile Include="..\PdnScanCrop\ScanJpegWriter.cs" Link="Shared\ScanJpegWriter.cs" />
-    <Compile Include="..\PdnScanCrop.Ocr\OcrScorer.cs" Link="Shared\OcrScorer.cs" />
+    <Compile Include="..\MusicBookCreator\Processing\ScanProcessor.cs" Link="App\Processing\ScanProcessor.cs" />
+    <Compile Include="..\MusicBookCreator\Processing\ScanJpegWriter.cs" Link="App\Processing\ScanJpegWriter.cs" />
+    <Compile Include="..\MusicBookCreator\Processing\OcrScorer.cs" Link="App\Processing\OcrScorer.cs" />
     <Compile Include="..\MusicBookCreator\ImageIo.cs" Link="App\ImageIo.cs" />
     <Compile Include="..\MusicBookCreator\BatchProcessor.cs" Link="App\BatchProcessor.cs" />
     <Compile Include="..\MusicBookCreator\PdfBookWriter.cs" Link="App\PdfBookWriter.cs" />

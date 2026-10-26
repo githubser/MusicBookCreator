@@ -5,17 +5,13 @@ using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 
-namespace PdnScanCrop;
+namespace MusicBookCreator;
 
 /// <summary>
 /// Scores a page with the built-in Windows OCR upright and rotated by 180°: the score is the
 /// number of letters in plausible words. Upside-down text produces mostly fragments and symbol
 /// garbage, so the higher score marks the correct orientation.
 /// </summary>
-/// <remarks>
-/// Shared source: compiled into the .NET Framework OCR helper (used by the Paint.NET plugin)
-/// and into the standalone app (.NET with CsWinRT projection).
-/// </remarks>
 public static class OcrScorer
 {
     // Words of at least 3 letters (optionally followed by punctuation), or numbers with 1-4 digits.

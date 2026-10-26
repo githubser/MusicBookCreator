@@ -2,7 +2,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
 using MusicBookCreator;
-using PdnScanCrop;
 using Windows.Data.Pdf;
 using Windows.Storage.Streams;
 

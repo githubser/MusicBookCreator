@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace PdnScanCrop;
+namespace MusicBookCreator;
 
 /// <summary>
 /// Settings for <see cref="ScanProcessor"/>.
@@ -49,7 +49,7 @@ public enum ScanRotation
 }
 
 /// <summary>
-/// Read-only view of a 32-bit BGRA pixel buffer (Paint.NET Surface, GDI+ BitmapData, ...).
+/// Read-only view of a 32-bit BGRA pixel buffer (decoded image, rotated copy, ...).
 /// </summary>
 public readonly unsafe struct BgraSource(byte* scan0, int stride, int width, int height)
 {
@@ -78,8 +78,8 @@ public delegate (int Upright, int Rotated)? OcrScoreProvider(byte[] gray, int wi
 
 /// <summary>
 /// Detects the content area of a scanned page, crops it and cleans up the background.
-/// Has no Paint.NET and no WinRT dependency so it can be shared between the Paint.NET plugin,
-/// the standalone app and test tools. OCR for Auto rotation is passed in as <see cref="OcrScoreProvider"/>.
+/// Works on raw pixel buffers without UI or WinRT dependencies, so the test runner can use it
+/// directly. OCR for Auto rotation is passed in as <see cref="OcrScoreProvider"/>.
 /// </summary>
 public static class ScanProcessor
 {
