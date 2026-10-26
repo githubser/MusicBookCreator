@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Paint.NET": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\paint.net\\paintdotnet.exe"
+    }
+  }
+}

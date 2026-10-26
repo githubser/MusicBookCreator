@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+publish/
+*.exe.old
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Test scans are copyrighted (pages of a published music book) and stay local.
+# Only the README describing the expected files is versioned.
+TestData/*
+!TestData/README.md
