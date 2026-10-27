@@ -26,7 +26,7 @@ public static class PdfBookWriter
     {
         if (imagePaths.Count == 0)
         {
-            throw new ArgumentException("Keine Bilder für die PDF.", nameof(imagePaths));
+            throw new ArgumentException("No images for the PDF.", nameof(imagePaths));
         }
 
         // Object numbers: 1 catalog, 2 page tree, then per page: page, content stream, image.

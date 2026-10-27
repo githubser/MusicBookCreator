@@ -19,7 +19,7 @@ public partial class MainWindow : Window
     protected override void OnClosing(CancelEventArgs e)
     {
         if (viewModel.IsBusy
-            && MessageBox.Show("Die Verarbeitung läuft noch. Trotzdem beenden?", AppInfo.Name,
+            && MessageBox.Show("Processing is still running. Quit anyway?", AppInfo.Name,
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
         {
             e.Cancel = true;

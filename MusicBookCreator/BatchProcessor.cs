@@ -61,7 +61,7 @@ public static class BatchProcessor
             {
                 string copy = Path.Combine(targetFolder, fileName);
                 File.Copy(file, copy, overwrite: true);
-                return new BatchItemResult(fileName, BatchItemStatus.Copied, false, "Kein Seiteninhalt erkannt – unverändert kopiert", copy);
+                return new BatchItemResult(fileName, BatchItemStatus.Copied, false, "No page content detected – copied unchanged", copy);
             }
 
             string target = Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(file) + ".jpg");
@@ -69,12 +69,12 @@ public static class BatchProcessor
             List<string> details = [];
             if (result.SkewAngle != 0)
             {
-                details.Add($"begradigt um {Math.Abs(result.SkewAngle):0.0#}°");
+                details.Add($"deskewed by {Math.Abs(result.SkewAngle):0.0#}°");
             }
 
             if (result.SpecksRemoved > 0)
             {
-                details.Add($"{result.SpecksRemoved} Flecken entfernt");
+                details.Add($"{result.SpecksRemoved} specks removed");
             }
 
             return new BatchItemResult(fileName, BatchItemStatus.Processed, result.Rotated, details.Count > 0 ? string.Join(", ", details) : null, target);

@@ -39,7 +39,7 @@ public sealed class ZoomableImage : Border
         Grid canvas = new() { Background = Brushes.Transparent, RenderTransform = transform };
         canvas.Children.Add(image);
         Child = canvas;
-        ToolTip = "Mausrad: Zoom · Ziehen: verschieben · Doppelklick: zurücksetzen";
+        ToolTip = "Mouse wheel: zoom · Drag: pan · Double-click: reset";
     }
 
     public ImageSource? Source

@@ -9,12 +9,16 @@ using Windows.Storage.Streams;
 // Git repository, see TestData\README.md); all output goes to %TEMP%.
 // Expected test set (TestData\BH2025Test): first and last file are covers, everything in
 // between are printed pages (several pre-cropped by the scanner, print up to the image edge).
+// English output with consistent number formatting ("1.32°") regardless of the Windows region.
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
 string testDataFolder = FindTestData();
 string testFolder = args.Length > 0 ? args[0] : Path.Combine(testDataFolder, "BH2025Test");
 string outputFolder = Path.Combine(Path.GetTempPath(), "MusicBookCreator.Tests");
 if (!Directory.Exists(testFolder))
 {
-    Console.WriteLine($"FEHLER  Testdaten nicht gefunden: {testFolder} (siehe TestData\\README.md)");
+    Console.WriteLine($"FAIL    Test data not found: {testFolder} (see TestData\\README.md)");
     return 1;
 }
 if (Directory.Exists(outputFolder))
@@ -24,7 +28,7 @@ if (Directory.Exists(outputFolder))
 
 Checks checks = new();
 IReadOnlyList<string> files = BatchProcessor.GetFiles(testFolder);
-checks.That(files.Count >= 3, $"Testsatz gefunden: {files.Count} Dateien in {testFolder}");
+checks.That(files.Count >= 3, $"Test set found: {files.Count} files in {testFolder}");
 if (files.Count < 3)
 {
     return checks.Finish();
@@ -36,15 +40,15 @@ List<BatchItemResult> results = [];
 await BatchProcessor.RunAsync(files, outputFolder, settings, new SyncProgress(r => { lock (results) { results.Add(r); } }), CancellationToken.None);
 Dictionary<string, BatchItemResult> byName = results.ToDictionary(r => r.FileName, StringComparer.OrdinalIgnoreCase);
 
-checks.That(results.All(r => r.Status != BatchItemStatus.Failed), "Keine Fehler bei der Verarbeitung");
+checks.That(results.All(r => r.Status != BatchItemStatus.Failed), "No processing errors");
 string first = Path.GetFileName(files[0]);
 string last = Path.GetFileName(files[^1]);
-checks.That(byName[first].Status == BatchItemStatus.Copied, $"Vorderes Cover {first} unverändert kopiert");
-checks.That(byName[last].Status == BatchItemStatus.Copied, $"Hinteres Cover {last} unverändert kopiert");
+checks.That(byName[first].Status == BatchItemStatus.Copied, $"Front cover {first} copied unchanged");
+checks.That(byName[last].Status == BatchItemStatus.Copied, $"Back cover {last} copied unchanged");
 foreach (string file in files.Skip(1).Take(files.Count - 2))
 {
     BatchItemResult r = byName[Path.GetFileName(file)];
-    checks.That(r.Status == BatchItemStatus.Processed, $"{r.FileName} bearbeitet{(r.Rotated ? " (gedreht)" : string.Empty)}");
+    checks.That(r.Status == BatchItemStatus.Processed, $"{r.FileName} processed{(r.Rotated ? " (rotated)" : string.Empty)}");
 }
 
 // 2. Nothing cut off: the line just outside the detected content must not carry print.
@@ -58,7 +62,7 @@ foreach (string file in files)
     }
 
     string? cut = CutOffSide(image, c, settings.InkThreshold);
-    checks.That(cut is null, $"{Path.GetFileName(file)}: nichts abgeschnitten{(cut is null ? string.Empty : $" – Druck direkt {cut} des Inhalts")}");
+    checks.That(cut is null, $"{Path.GetFileName(file)}: nothing cut off{(cut is null ? string.Empty : $" – print directly {cut} the content")}");
 }
 
 // 2b. Nothing painted over: no ink pixel of the original may turn white in the output
@@ -74,7 +78,7 @@ foreach (string file in files)
     LoadedImage original = ImageIo.Load(file);
     ScanResult processed = ImageIo.Process(original, settings);
     int lost = CountPaintedOverInk(original, processed, settings);
-    checks.That(lost == 0, $"{item.FileName}: kein Druck übermalt{(lost == 0 ? string.Empty : $" – {lost} Druckpixel weiß geworden")}");
+    checks.That(lost == 0, $"{item.FileName}: no print painted over{(lost == 0 ? string.Empty : $" – {lost} print pixels turned white")}");
 }
 
 // 2c. Deskew: a page skewed artificially by a known angle must be detected with that angle.
@@ -86,10 +90,10 @@ foreach (string file in files)
     double detected = SkewOf(skewed, settings.InkThreshold);
     double expected = baseAngle + 1.5;
     checks.That(Math.Abs(detected - expected) <= 0.1,
-        $"Begradigen: {Path.GetFileName(sample)} künstlich um 1,5° verdreht → erkannt {detected:+0.00;-0.00}° (erwartet {expected:+0.00;-0.00}°, Original {baseAngle:+0.00;-0.00}°)");
+        $"Deskew: {Path.GetFileName(sample)} artificially skewed by 1.5° → detected {detected:+0.00;-0.00}° (expected {expected:+0.00;-0.00}°, original {baseAngle:+0.00;-0.00}°)");
 
     ScanResult straightened = ImageIo.Process(skewed, settings with { Deskew = true });
-    checks.That(Math.Abs(straightened.SkewAngle - expected) <= 0.1, $"Begradigen: Verarbeitung korrigiert {straightened.SkewAngle:+0.00;-0.00}°");
+    checks.That(Math.Abs(straightened.SkewAngle - expected) <= 0.1, $"Deskew: processing corrected {straightened.SkewAngle:+0.00;-0.00}°");
 }
 
 // 2c'. Deskew on a really skewed scan (provided by the user, measured 1.32°): detected angle and
@@ -101,11 +105,11 @@ if (File.Exists(SkewedScan))
     ScanResult straight = ImageIo.Process(skewedScan, settings with { Deskew = true });
     double residual = ResidualSkew(straight, settings.InkThreshold);
     checks.That(Math.Abs(straight.SkewAngle - 1.32) <= 0.1 && Math.Abs(residual) <= 0.1,
-        $"Begradigen echter Scan {Path.GetFileName(SkewedScan)}: korrigiert {straight.SkewAngle:+0.00;-0.00}° (erwartet +1,32°), Restschräge {residual:+0.00;-0.00}°");
+        $"Deskew real scan {Path.GetFileName(SkewedScan)}: corrected {straight.SkewAngle:+0.00;-0.00}° (expected +1.32°), residual skew {residual:+0.00;-0.00}°");
 }
 else
 {
-    Console.WriteLine($"HINWEIS  {SkewedScan} nicht gefunden – Test für echten schrägen Scan übersprungen");
+    Console.WriteLine($"NOTE    {SkewedScan} not found – real skewed scan test skipped");
 }
 
 // 2d. Despeckle: artificial dust specks must all be removed, real print must stay untouched.
@@ -120,7 +124,7 @@ else
     int removed = ScanProcessor.RemoveSpecks(withSpecks, clean.Width, clean.Height, true);
     bool identical = withSpecks.AsSpan().SequenceEqual(cleanCopy);
     checks.That(added == 50 && removed - baseline == added && identical,
-        $"Flecken entfernen: {removed - baseline} von {added} künstlichen Flecken entfernt, Druck unverändert: {identical} (echte Flecken auf der Seite: {baseline})");
+        $"Despeckle: {removed - baseline} of {added} artificial specks removed, print unchanged: {identical} (real specks on the page: {baseline})");
 }
 
 // 3. PDF: page count, A4, covers edge to edge, inner pages with >= 1 cm white margin.
@@ -131,7 +135,7 @@ PdfBookWriter.Write(pdfPath, pages);
 using (FileStream pdfStream = File.OpenRead(pdfPath))
 {
     PdfDocument pdf = await PdfDocument.LoadFromStreamAsync(pdfStream.AsRandomAccessStream());
-    checks.That(pdf.PageCount == files.Count, $"PDF hat {pdf.PageCount} Seiten (erwartet {files.Count})");
+    checks.That(pdf.PageCount == files.Count, $"PDF has {pdf.PageCount} pages (expected {files.Count})");
 
     for (uint i = 0; i < pdf.PageCount; i++)
     {
@@ -146,24 +150,24 @@ using (FileStream pdfStream = File.OpenRead(pdfPath))
         int width = (int)Math.Round(page.Size.Width);
         int height = (int)Math.Round(page.Size.Height);
         bool edgePage = i == 0 || i == pdf.PageCount - 1;
-        string label = $"PDF-Seite {i + 1}{(landscape ? " (quer)" : string.Empty)}";
+        string label = $"PDF page {i + 1}{(landscape ? " (landscape)" : string.Empty)}";
 
         if (edgePage)
         {
             bool cornersFilled = new[] { (2, 2), (width - 3, 2), (2, height - 3), (width - 3, height - 3) }
                 .All(p => gray[p.Item2 * width + p.Item1] < 250);
-            checks.That(isA4 && cornersFilled, $"{label}: A4, randlos gefüllt");
+            checks.That(isA4 && cornersFilled, $"{label}: A4, filled edge to edge");
         }
         else
         {
             int margin = 36; // Slightly below 1 cm to tolerate rounding of the renderer.
             bool marginWhite = IsBandWhite(gray, width, height, margin);
-            checks.That(isA4 && marginWhite, $"{label}: A4, mindestens 1 cm weißer Rand");
+            checks.That(isA4 && marginWhite, $"{label}: A4, at least 1 cm white margin");
         }
     }
 }
 
-Console.WriteLine($"\nAusgaben: {outputFolder}");
+Console.WriteLine($"\nOutput: {outputFolder}");
 return checks.Finish();
 
 static unsafe Rectangle? DetectContent(LoadedImage image, ScanSettings settings)
@@ -174,7 +178,7 @@ static unsafe Rectangle? DetectContent(LoadedImage image, ScanSettings settings)
     }
 }
 
-// Returns the side ("oberhalb", ...) where the line directly next to the content still carries
+// Returns the side ("above", ...) where the line directly next to the content still carries
 // print (more than noise, less than a full shadow line), or null if nothing was cut off.
 static string? CutOffSide(LoadedImage image, Rectangle content, int inkThreshold)
 {
@@ -192,22 +196,22 @@ static string? CutOffSide(LoadedImage image, Rectangle content, int inkThreshold
 
     if (content.Top > 0 && CarriesPrint(RowInk(content.Top - 1), content.Width))
     {
-        return "oberhalb";
+        return "above";
     }
 
     if (content.Bottom < image.Height && CarriesPrint(RowInk(content.Bottom), content.Width))
     {
-        return "unterhalb";
+        return "below";
     }
 
     if (content.Left > 0 && CarriesPrint(ColumnInk(content.Left - 1), content.Height))
     {
-        return "links";
+        return "left of";
     }
 
     if (content.Right < image.Width && CarriesPrint(ColumnInk(content.Right), content.Height))
     {
-        return "rechts";
+        return "right of";
     }
 
     return null;
@@ -362,7 +366,7 @@ sealed class Checks
 
     public void That(bool condition, string description)
     {
-        Console.WriteLine($"{(condition ? "OK    " : "FEHLER")}  {description}");
+        Console.WriteLine($"{(condition ? "OK    " : "FAIL  ")}  {description}");
         if (condition)
         {
             passed++;
@@ -375,7 +379,7 @@ sealed class Checks
 
     public int Finish()
     {
-        Console.WriteLine($"\n{passed} OK, {failed} Fehler");
+        Console.WriteLine($"\n{passed} OK, {failed} failed");
         return failed == 0 ? 0 : 1;
     }
 }

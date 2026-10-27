@@ -1,26 +1,26 @@
-# Testdaten
+# Test data
 
-Die Testscans sind **nicht im Repository**: Es sind Seiten eines urheberrechtlich geschützten
-Notenheftes. Sie liegen nur lokal in diesem Ordner (per `.gitignore` ausgeschlossen).
+The test scans are **not part of the repository**: they are pages of a copyrighted music book.
+They only exist locally in this folder (excluded via `.gitignore`).
 
-Das Testprogramm `MusicBookCreator.Tests` erwartet folgenden Aufbau:
+The test runner `MusicBookCreator.Tests` expects the following layout:
 
 ```
 TestData/
-├── BH2025Test/          Seitenfolge eines Notenheftes (JPEG, ca. 300 dpi)
-│   ├── Scannen0504.jpg  erste Datei: farbiges Cover  → wird unverändert kopiert, PDF-Seite randlos
+├── BH2025Test/          page sequence of a music book (JPEG, approx. 300 dpi)
+│   ├── Scannen0504.jpg  first file: colored cover → copied unchanged, PDF page edge to edge
 │   ├── Scannen0505.jpg  …
-│   ├── …                Druckseiten, teils vom Scanner bereits zugeschnitten
-│   ├── Scannen0515.jpg  (Druck reicht bis an den Bildrand)
-│   └── Scannen0640.jpg  letzte Datei: Rückcover → unverändert kopiert, PDF-Seite randlos
-└── Scannen0651.jpg      deutlich schräg gescannte Notenseite (+1,32°) für „Begradigen“
+│   ├── …                printed pages, some already cropped by the scanner
+│   ├── Scannen0515.jpg  (print reaches the image edge)
+│   └── Scannen0640.jpg  last file: back cover → copied unchanged, PDF page edge to edge
+└── Scannen0651.jpg      clearly skewed music page (+1.32°) for "Deskew"
 ```
 
-Mit eigenen Scans funktioniert der Test genauso, solange die erste und letzte Datei Cover sind
-und dazwischen Druckseiten liegen. Ein anderer Ordner kann auch direkt übergeben werden:
+The test works the same with your own scans, as long as the first and last file are covers and the
+files in between are printed pages. Another folder can also be passed directly:
 
 ```
-dotnet run -c Release --project MusicBookCreator.Tests -- "D:\Pfad\zu\Scans"
+dotnet run -c Release --project MusicBookCreator.Tests -- "D:\path\to\scans"
 ```
 
-Fehlt `Scannen0651.jpg`, wird nur der Test „Begradigen echter Scan“ übersprungen.
+If `Scannen0651.jpg` is missing, only the "Deskew real scan" test is skipped.

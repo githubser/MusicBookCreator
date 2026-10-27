@@ -45,7 +45,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private FileItem? selectedFile;
     private BitmapSource? originalPreview;
     private BitmapSource? resultPreview;
-    private string previewStatus = "Datei aus der Liste wählen";
+    private string previewStatus = "Select a file from the list";
     private bool isBusy;
     private int progressValue;
     private int progressMaximum = 1;
@@ -283,7 +283,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         previewCache = null;
         if (!Directory.Exists(SourceFolder))
         {
-            StatusText = "Quellordner wählen";
+            StatusText = "Choose a source folder";
             return;
         }
 
@@ -294,16 +294,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         if (string.IsNullOrWhiteSpace(TargetFolder))
         {
-            TargetFolder = Path.Combine(SourceFolder, "bereinigt");
+            TargetFolder = Path.Combine(SourceFolder, "cleaned");
         }
 
-        StatusText = $"{Files.Count} Bilder im Quellordner";
+        StatusText = $"{Files.Count} images in the source folder";
         SelectedFile = Files.FirstOrDefault();
     }
 
     private void BrowseSource()
     {
-        if (PickFolder("Quellordner wählen", SourceFolder) is { } folder)
+        if (PickFolder("Choose source folder", SourceFolder) is { } folder)
         {
             SourceFolder = folder;
         }
@@ -311,7 +311,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private void BrowseTarget()
     {
-        if (PickFolder("Zielordner wählen", TargetFolder) is { } folder)
+        if (PickFolder("Choose target folder", TargetFolder) is { } folder)
         {
             TargetFolder = folder;
         }
@@ -340,13 +340,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (SelectedFile is not { } file)
         {
             OriginalPreview = ResultPreview = null;
-            PreviewStatus = "Datei aus der Liste wählen";
+            PreviewStatus = "Select a file from the list";
             return;
         }
 
         ScanSettings settings = CurrentSettings();
         var cached = previewCache is { } c && c.Path == file.Path ? c : default((string Path, LoadedImage Image, BitmapSource Original)?);
-        PreviewStatus = "Vorschau wird berechnet …";
+        PreviewStatus = "Calculating preview …";
 
         try
         {
@@ -368,37 +368,37 @@ public sealed class MainViewModel : INotifyPropertyChanged
             ResultPreview = result.IsPlausible ? ImageIo.ToBitmapSource(result) : original;
             PreviewStatus = result.IsPlausible
                 ? $"{result.Width} × {result.Height} px{Describe(result)}"
-                : "Kein Seiteninhalt erkannt – wird beim Start unverändert kopiert";
+                : "No page content detected – will be copied unchanged";
         }
         catch (Exception ex) when (ex is IOException or NotSupportedException or FormatException or UnauthorizedAccessException or ArgumentException)
         {
             if (version == previewVersion)
             {
                 OriginalPreview = ResultPreview = null;
-                PreviewStatus = $"Fehler: {ex.Message}";
+                PreviewStatus = $"Error: {ex.Message}";
             }
         }
     }
 
     /// <summary>
-    /// Changes beyond cropping/cleanup, e.g. ", um 180° gedreht, begradigt um 1,2°, 5 Flecken entfernt".
+    /// Changes beyond cropping/cleanup, e.g. ", rotated 180°, deskewed by 1.2°, 5 specks removed".
     /// </summary>
     private static string Describe(ScanResult result)
     {
         List<string> parts = [];
         if (result.Rotated)
         {
-            parts.Add("um 180° gedreht");
+            parts.Add("rotated 180°");
         }
 
         if (result.SkewAngle != 0)
         {
-            parts.Add($"begradigt um {Math.Abs(result.SkewAngle):0.0#}°");
+            parts.Add($"deskewed by {Math.Abs(result.SkewAngle):0.0#}°");
         }
 
         if (result.SpecksRemoved > 0)
         {
-            parts.Add($"{result.SpecksRemoved} Flecken entfernt");
+            parts.Add($"{result.SpecksRemoved} specks removed");
         }
 
         return parts.Count == 0 ? string.Empty : ", " + string.Join(", ", parts);
@@ -414,13 +414,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IReadOnlyList<string> files = BatchProcessor.GetFiles(source);
         if (files.Count == 0)
         {
-            MessageBox.Show("Im Quellordner wurden keine Bilder gefunden.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("No images were found in the source folder.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         if (Directory.Exists(target) && Directory.EnumerateFileSystemEntries(target).Any()
             && MessageBox.Show(
-                "Der Zielordner enthält bereits Dateien. Gleichnamige Dateien werden überschrieben.\n\nFortfahren?",
+                "The target folder already contains files. Files with the same name will be overwritten.\n\nContinue?",
                 AppInfo.Name, MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
         {
             return;
@@ -464,15 +464,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
             string status = item.Status switch
             {
-                BatchItemStatus.Processed => "✔ bearbeitet" + (item.Rotated ? ", gedreht" : string.Empty) + (item.Message is { } details ? ", " + details : string.Empty),
+                BatchItemStatus.Processed => "✔ processed" + (item.Rotated ? ", rotated" : string.Empty) + (item.Message is { } details ? ", " + details : string.Empty),
                 BatchItemStatus.Copied => $"⚠ {item.Message}",
-                _ => $"✘ Fehler: {item.Message}"
+                _ => $"✘ Error: {item.Message}"
             };
             Log.Insert(0, new LogEntry(item.FileName, status));
             StatusText = $"{ProgressValue} / {ProgressMaximum} …";
         });
 
-        string outcome = "Fertig";
+        string outcome = "Done";
         string pdfInfo = string.Empty;
         try
         {
@@ -490,7 +490,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
         catch (OperationCanceledException)
         {
-            outcome = "Abgebrochen";
+            outcome = "Cancelled";
         }
         finally
         {
@@ -499,8 +499,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             batchCancellation = null;
         }
 
-        StatusText = $"{outcome} nach {stopwatch.Elapsed:mm\\:ss}: {processed} bearbeitet ({rotated} gedreht), "
-            + $"{copied} unverändert kopiert, {failed} Fehler{pdfInfo}";
+        StatusText = $"{outcome} after {stopwatch.Elapsed:mm\\:ss}: {processed} processed ({rotated} rotated), "
+            + $"{copied} copied unchanged, {failed} errors{pdfInfo}";
     }
 
     /// <summary>
@@ -511,16 +511,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         string pdfName = PdfFileName(source);
         if (pages.Count == 0)
         {
-            Log.Insert(0, new LogEntry(pdfName, "✘ Keine PDF erstellt: keine Seiten"));
-            return ", keine PDF";
+            Log.Insert(0, new LogEntry(pdfName, "✘ No PDF created: no pages"));
+            return ", no PDF";
         }
 
         string pdfPath = Path.Combine(target, pdfName);
-        StatusText = $"PDF wird erstellt ({pages.Count} Seiten) …";
+        StatusText = $"Creating PDF ({pages.Count} pages) …";
         try
         {
             await Task.Run(() => PdfBookWriter.Write(pdfPath, pages, cancellationToken), cancellationToken);
-            Log.Insert(0, new LogEntry(pdfName, $"📄 PDF erstellt, {pages.Count} Seiten"));
+            Log.Insert(0, new LogEntry(pdfName, $"📄 PDF created, {pages.Count} pages"));
             return $", PDF: {pdfName}";
         }
         catch (OperationCanceledException)
@@ -531,8 +531,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or FormatException or ArgumentException)
         {
             TryDelete(pdfPath);
-            Log.Insert(0, new LogEntry(pdfName, $"✘ PDF-Fehler: {ex.Message}"));
-            return ", PDF fehlgeschlagen";
+            Log.Insert(0, new LogEntry(pdfName, $"✘ PDF error: {ex.Message}"));
+            return ", PDF failed";
         }
     }
 
@@ -565,13 +565,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         source = target = string.Empty;
         if (!Directory.Exists(SourceFolder))
         {
-            MessageBox.Show("Bitte einen vorhandenen Quellordner wählen.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please choose an existing source folder.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(TargetFolder))
         {
-            MessageBox.Show("Bitte einen Zielordner wählen.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please choose a target folder.", AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
 
@@ -579,7 +579,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         target = Path.TrimEndingDirectorySeparator(Path.GetFullPath(TargetFolder));
         if (string.Equals(source, target, StringComparison.OrdinalIgnoreCase))
         {
-            MessageBox.Show("Quell- und Zielordner müssen verschieden sein – die Originale werden nie überschrieben.",
+            MessageBox.Show("Source and target folder must be different – the originals are never overwritten.",
                 AppInfo.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
